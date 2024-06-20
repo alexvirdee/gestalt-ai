@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from kivy.uix.screenmanager import ScreenManager
 from kivy.app import App
 
-import openai
+# import openai
 # from kivy.lang import Builder
 # import boto3
 # from botocore.exceptions import ClientError

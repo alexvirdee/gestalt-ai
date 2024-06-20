@@ -9,6 +9,8 @@ from botocore.exceptions import ClientError
 
 import boto3
 
+import openai
+
 chat_history = []
 current_user = ''
 
