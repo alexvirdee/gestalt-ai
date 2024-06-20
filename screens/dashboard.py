@@ -1,5 +1,13 @@
+import os
+
 from kivy.uix.screenmanager import Screen
 from kivy.core.window import Window
+from kivy.uix.button import Button
+from kivy.uix.popup import Popup
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+
+from kivy.lang import Builder
 
 class DashboardScreen(Screen):
     Window.clearcolor = (30/255,129/255,176/255,0)
@@ -10,7 +18,8 @@ class DashboardScreen(Screen):
         layout.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
 
         #Dashboard
-        img = Builder.load_file('image.kv')
+        kv_file_path = os.path.join(os.path.dirname(__file__), '..', 'kv', 'image.kv')
+        img = Builder.load_file(kv_file_path)
         layout.add_widget(img)
 
         chat_button = Button(
@@ -32,7 +41,8 @@ class DashboardScreen(Screen):
         )
         layout.add_widget(todo_list_button)
 
-        exit_button = Builder.load_file('ExitButton.kv')
+        kv_file_path_exit_button = os.path.join(os.path.dirname(__file__), '..', 'kv', 'ExitButton.kv')
+        exit_button = Builder.load_file(kv_file_path_exit_button)
         layout.add_widget(exit_button)
 
 

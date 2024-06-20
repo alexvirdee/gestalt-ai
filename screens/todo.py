@@ -6,9 +6,21 @@ from kivy.uix.boxlayout import BoxLayout
 
 from botocore.exceptions import ClientError
 
-s3_client = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=aws_region)
+import boto3
+
+current_user = ''
 
 class ToDoScreen(Screen):
+
+   def on_enter(self):
+      # Access the config through the parent screen manager
+      config = self.manager.config
+      aws_access_key_id = config['aws_access_key_id']
+      aws_secret_key = config['aws_secret_key']
+      aws_region = config['aws_region']
+
+      self.s3_client = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_key, region_name=aws_region)
+
    def __init__(self, **kwargs):
        super(ToDoScreen, self).__init__(**kwargs)
        self.todo_list = []

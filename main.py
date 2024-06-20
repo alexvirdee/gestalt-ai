@@ -24,19 +24,19 @@ from screens.todo import ToDoScreen
 # s3_client = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=aws_region)
 
 # openai.api_key = ""
-modelT = 'gpt-3.5-turbo'
+# modelT = 'gpt-3.5-turbo'
 chat_history = []
-current_user = ''
+# current_user = ''
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Create a configuration dictionary
 config = {
-    'aws_access_key': os.getenv('AWS_ACCESS_KEYL'),
+    'aws_access_key_id': os.getenv('AWS_ACCESS_KEY_ID'),
     'aws_secret_key': os.getenv('AWS_SECRET_KEY'),
-    'aws_region': int(os.getenv('AWS_REGION')),
-    'open_ai_api_key': int(os.getenv('OPEN_AI_API_KEY'))
+    'aws_region':     os.getenv('AWS_REGION'),
+    'open_ai_api_key': os.getenv('OPEN_AI_API_KEY')
 }
 
 class GestaltScreenManager(ScreenManager):
@@ -47,7 +47,7 @@ class GestaltScreenManager(ScreenManager):
 class Gestalt(App):
     def build(self):
         # Create the ScreenManager
-        sm = GestaltScreenManager()
+        sm = GestaltScreenManager(config)
 
         # Add screens to the ScreenManager
         sm.add_widget(LoginScreen(name='login'))

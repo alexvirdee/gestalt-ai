@@ -1,19 +1,43 @@
+import os
+
 from kivy.uix.screenmanager import Screen
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+from kivy.uix.popup import Popup
+from kivy.uix.button import Button
+
+from kivy.lang import Builder
+
+from botocore.exceptions import ClientError
 
 import boto3
 
-cognito_client = boto3.client('cognito-idp', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=aws_region)
 
 class LoginScreen(Screen):
+  
+  def on_enter(self):
+      # Access the config through the parent screen manager
+      config = self.manager.config
+      aws_access_key_id = config['aws_access_key_id']
+      aws_secret_key = config['aws_secret_key']
+      aws_region = config['aws_region']
+
+      self.cognito_client = boto3.client('cognito-idp', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_key, region_name=aws_region)
+
+      self.s3_client = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_key, region_name=aws_region)
 
   def __init__(self, **kwargs):
       super().__init__(**kwargs)
 
+      
+
       layout = BoxLayout(orientation='vertical', spacing=10,)
       layout.size_hint = (0.5, 0.5)
       layout.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
-
-      img = Builder.load_file('image.kv')
+      
+      kv_file_path = os.path.join(os.path.dirname(__file__), '..', 'kv', 'image.kv')
+      img = Builder.load_file(kv_file_path)
       layout.add_widget(img)
 
       username_label = Label(text='Username:', size_hint_y=None, height=30)
@@ -52,7 +76,7 @@ class LoginScreen(Screen):
 
   def cognito_login(self, username, password):
       try:
-          response = cognito_client.initiate_auth(
+          response = self.cognito_client.initiate_auth(
               ClientId='3rscvq1mrc51g92831osg1sgr7',
               AuthFlow='USER_PASSWORD_AUTH',
               AuthParameters={
@@ -109,7 +133,7 @@ class LoginScreen(Screen):
   def cognito_sign_up(self, username, password):
       current_user = username
       try:
-          response = cognito_client.sign_up(
+          response = self.cognito_client.sign_up(
               ClientId='3rscvq1mrc51g92831osg1sgr7',
               Username=username,
               Password=password,
@@ -120,10 +144,10 @@ class LoginScreen(Screen):
           print("Sign-up successful. Confirmation code sent to:", response['UserConfirmed'])
           current_user = self.username
 
-          s3_client.put_object(Bucket='gestaltfilestorage', Key=f'{self.username}ToDoList.txt',
+          self.s3_client.put_object(Bucket='gestaltfilestorage', Key=f'{self.username}ToDoList.txt',
                                Body='')
 
-          s3_client.put_object(Bucket='gestaltfilestorage', Key=f'{self.username}ChatHistory.txt',
+          self.s3_client.put_object(Bucket='gestaltfilestorage', Key=f'{self.username}ChatHistory.txt',
                                Body='')
 
           return True
@@ -136,7 +160,7 @@ class LoginScreen(Screen):
 
   def confirm_signup(self, verification_code, verification_popup):
       try:
-          response = cognito_client.confirm_sign_up(
+          response = self.cognito_client.confirm_sign_up(
               ClientId='3rscvq1mrc51g92831osg1sgr7',
               Username=self.username,
               ConfirmationCode=verification_code,
