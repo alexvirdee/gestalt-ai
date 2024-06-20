@@ -11,10 +11,11 @@ from kivy.lang import Builder
 
 class DashboardScreen(Screen):
     Window.clearcolor = (30/255,129/255,176/255,0)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        layout = BoxLayout(orientation='vertical', spacing=10,)
+        layout = BoxLayout(orientation='vertical')
         layout.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
 
         #Dashboard
@@ -57,6 +58,15 @@ class DashboardScreen(Screen):
 
     def load_and_switch_to_chat(self):
         chat_screen = self.manager.get_screen('chat')
+
+        # Initialize S3 client before switching
+        config = self.manager.config
+        aws_access_key_id = config['aws_access_key_id']
+        aws_secret_key = config['aws_secret_key']
+        aws_region = config['aws_region']
+
+        chat_screen.initialize_s3_client(aws_access_key_id, aws_secret_key, aws_region)
+
         popup = Popup(title='Dislaimer', content=Label(text='This app is not meant to \nsubstitute medical advice.'),
                       size_hint=(None, None), size=(200, 200))
         popup.open()

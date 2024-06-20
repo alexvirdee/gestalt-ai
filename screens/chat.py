@@ -7,11 +7,22 @@ from kivy.uix.label import Label
 
 from botocore.exceptions import ClientError
 
+import boto3
+
 chat_history = []
+current_user = ''
 
 class ChatScreen(Screen):
- def __init__(self, **kwargs):
+    
+    def on_enter(self):
+      # Load chat history when the screen is entered
+      self.load_chat_history()
+
+    def __init__(self, **kwargs):
      super().__init__(**kwargs)
+
+     # Initialize s3_client with None
+     self.s3_client = None
 
      # Load chat history from a text file when the screen is opened
 
@@ -46,9 +57,20 @@ class ChatScreen(Screen):
 
      self.add_widget(layout)
 
- def load_chat_history(self):
+    def initialize_s3_client(self, aws_access_key_id, aws_secret_key, aws_region):
+        self.s3_client = boto3.client(
+            's3',
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_key,
+            region_name=aws_region
+    )
+
+    def load_chat_history(self):
+     if self.s3_client is None:
+        raise AttributeError("S3 client is not initialized.")
+
      try:
-         response = s3_client.get_object(Bucket='gestaltfilestorage', Key=f'{current_user}ChatHistory.txt')
+         response = self.s3_client.get_object(Bucket='gestaltfilestorage', Key=f'{current_user}ChatHistory.txt')
          lines = response['Body'].read().decode('utf-8').splitlines()
          for line in lines:
              if line.startswith('You: '):
@@ -61,7 +83,7 @@ class ChatScreen(Screen):
      except ClientError as e:
          print(f"Error loading chat history from S3: {e}")
 
- def send_message(self, chat_history_layout, message, user_input):
+    def send_message(self, chat_history_layout, message, user_input):
      # Append user message to chat history
      user_message = {"role": "user", "content": message}
      chat_history.append(user_message)
@@ -104,7 +126,10 @@ class ChatScreen(Screen):
      chat_history_layout.height = sum(label.height for label in chat_history_layout.children) + (
              len(chat_history_layout.children) - 1) * chat_history_layout.spacing
 
- def save_chat_history(self, chat_hist):
+    def save_chat_history(self, chat_hist):
+     if self.s3_client is None:
+        raise AttributeError("S3 client is not initialized.")
+     
      try:
          # Save the entire chat history to a string
 
@@ -116,33 +141,33 @@ class ChatScreen(Screen):
                  chat_history_str += f'Bot: {message["content"]}\n'
 
          # Delete the existing ChatHistory.txt file in S3
-         s3_client.delete_object(Bucket='gestaltfilestorage', Key=f'{current_user}ChatHistory.txt')
+         self.s3_client.delete_object(Bucket='gestaltfilestorage', Key=f'{current_user}ChatHistory.txt')
 
          # Upload the updated chat history to S3
-         s3_client.put_object(Bucket='gestaltfilestorage', Key=f'{current_user}ChatHistory.txt',
+         self.s3_client.put_object(Bucket='gestaltfilestorage', Key=f'{current_user}ChatHistory.txt',
                               Body=chat_history_str)
      except ClientError as e:
          print(f"Error saving chat history to S3: {e}")
 
- def generate_response(self, chat_history):
+    def generate_response(self, chat_history):
 
-    # Format chat history for OpenAI API
-    instructions = "You are a therapist and the user is having a session with you.\
-    Also, if someone is stressed about a workload, suggest the To-Do list feature in the Gestalt app(which you are an element of. \
-    Give more advice rather than asking questions, although questions are ok. \
-    Try to make your responses concise and don't use lists unless absolutely neccesary."
+        # Format chat history for OpenAI API
+        instructions = "You are a therapist and the user is having a session with you.\
+        Also, if someone is stressed about a workload, suggest the To-Do list feature in the Gestalt app(which you are an element of. \
+        Give more advice rather than asking questions, although questions are ok. \
+        Try to make your responses concise and don't use lists unless absolutely neccesary."
 
-    messages = [{"role": "system", "content": instructions}]
-    messages.extend(chat_history)  # Include user and assistant messages
+        messages = [{"role": "system", "content": instructions}]
+        messages.extend(chat_history)  # Include user and assistant messages
 
-    # Generate chatbot's response using OpenAI ChatCompletion model
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages= messages
-    )
-    chat_history.append({"role": "assistant", "content": response.choices[0].message['content'].strip()})
-    return response.choices[0].message['content'].strip()
+        # Generate chatbot's response using OpenAI ChatCompletion model
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages= messages
+        )
+        chat_history.append({"role": "assistant", "content": response.choices[0].message['content'].strip()})
+        return response.choices[0].message['content'].strip()
 
 
- def switch_to_dashboard(self):
-    self.manager.current = 'dashboard'
+    def switch_to_dashboard(self):
+        self.manager.current = 'dashboard'
