@@ -34,7 +34,7 @@ class Gestalt(App):
         sm = GestaltScreenManager(config)
 
         # Add screens to the ScreenManager
-        # sm.add_widget(LoginScreen(name='login'))
+        sm.add_widget(LoginScreen(name='login'))
         sm.add_widget(DashboardScreen(name='dashboard'))
         sm.add_widget(ChatScreen(name='chat'))
         sm.add_widget(ToDoScreen(name='todo'))
