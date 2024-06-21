@@ -30,24 +30,20 @@ class LoginScreen(Screen):
   def __init__(self, **kwargs):
       super().__init__(**kwargs)
 
-      
-
-      layout = BoxLayout(orientation='vertical', spacing=10,)
-      layout.size_hint = (0.5, 0.5)
-      layout.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
+      layout = BoxLayout(orientation='vertical', spacing=10, size_hint=(0.6, 0.6), pos_hint={'center_x': 0.5, 'center_y': 0.5})
       
       kv_file_path = os.path.join(os.path.dirname(__file__), '..', 'kv', 'image.kv')
       img = Builder.load_file(kv_file_path)
       layout.add_widget(img)
 
-      username_label = Label(text='Username:', size_hint_y=None, height=30)
-      self.username_input = TextInput(multiline=False, size_hint_y=None, height=30)
+      username_label = Label(text='Username:', size_hint_y=None, height=40)
+      self.username_input = TextInput(multiline=False, size_hint_y=None, height=50, size_hint_x=1)
 
-      password_label = Label(text='Password:', size_hint_y=None, height=30)
-      self.password_input = TextInput(password=True, multiline=False, size_hint_y=None, height=30)
+      password_label = Label(text='Password:', size_hint_y=None, height=40)
+      self.password_input = TextInput(password=True, multiline=False, size_hint_y=None, height=50, size_hint_x=1)
 
-      login_button = Button(text='Login', on_press=self.login, size_hint_y=None, height=30)
-      sign_up_button = Button(text='Sign Up', on_press=lambda x: self.sign_up(), size_hint_y=None, height=30)
+      login_button = Button(text='Login', on_press=self.login, size_hint_y=None, height=50, size_hint_x=1)
+      sign_up_button = Button(text='Sign Up', on_press=lambda x: self.sign_up(), size_hint_y=None, height=50, size_hint_x=1)
 
       layout.add_widget(username_label)
       layout.add_widget(self.username_input)
@@ -71,7 +67,7 @@ class LoginScreen(Screen):
       else:
           # Display an error message in a popup on login failure
           popup = Popup(title='Login Error', content=Label(text='Invalid username or password.'),
-                        size_hint=(None, None), size=(200, 200))
+                        size_hint=(None, None), size=(600, 500))
           popup.open()
 
   def cognito_login(self, username, password):
@@ -104,7 +100,7 @@ class LoginScreen(Screen):
           # Display an error message in a popup on sign-up failure
           popup = Popup(title='Sign-Up Error',
                         content=Label(text='Failed to sign up.\nPlease check your input and try again.'),
-                        size_hint=(None, None), size=(200, 200))
+                        size_hint=(None, None), size=(600, 500))
           popup.open()
 
   def show_verification_popup(self):
@@ -112,7 +108,7 @@ class LoginScreen(Screen):
       verification_input = TextInput(hint_text='Enter verification code', multiline=False)
       verification_popup = Popup(title='Verification Code',
                                  content=BoxLayout(orientation='vertical'),
-                                 size_hint=(None, None), size=(200, 200),
+                                 size_hint=(None, None), size=(400, 300),
                                  auto_dismiss=False)
 
       # Create a button to confirm the verification code
