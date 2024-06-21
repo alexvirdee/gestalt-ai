@@ -56,8 +56,8 @@ class LoginScreen(Screen):
 
   def login(self, instance):
       global current_user
-      username = self.username_input.text
-      password = self.password_input.text
+      username = self.username_input.text.strip() # Trim whitespace
+      password = self.password_input.text.strip() # Trim whitespace
       current_user = username
       print("current user: " + current_user)
       if self.cognito_login(username, password):
@@ -87,8 +87,8 @@ class LoginScreen(Screen):
 
   def sign_up(self):
       global current_user
-      username = self.username_input.text
-      password = self.password_input.text
+      username = self.username_input.text.strip() # Trim whitespace
+      password = self.password_input.text.strip() # Trim whitespace
       self.username = username
       current_user = username
 
@@ -113,7 +113,7 @@ class LoginScreen(Screen):
 
       # Create a button to confirm the verification code
       confirm_button = Button(text='Confirm',
-                              on_press=lambda x: self.confirm_signup(verification_input.text, verification_popup))
+                              on_press=lambda x: self.confirm_signup(verification_input.text.strip(), verification_popup))
       verification_popup.content.add_widget(confirm_button)
 
       # Create a button to dismiss the popup
