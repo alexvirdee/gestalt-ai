@@ -108,7 +108,7 @@ class LoginScreen(Screen):
       verification_input = TextInput(hint_text='Enter verification code', multiline=False)
       verification_popup = Popup(title='Verification Code',
                                  content=BoxLayout(orientation='vertical'),
-                                 size_hint=(None, None), size=(400, 300),
+                                 size_hint=(None, None), size=(600, 500),
                                  auto_dismiss=False)
 
       # Create a button to confirm the verification code
