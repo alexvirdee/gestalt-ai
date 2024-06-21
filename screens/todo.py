@@ -3,6 +3,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
 
 from botocore.exceptions import ClientError
 
@@ -13,13 +14,8 @@ current_user = ''
 class ToDoScreen(Screen):
 
    def on_enter(self):
-      # Access the config through the parent screen manager
-      config = self.manager.config
-      aws_access_key_id = config['aws_access_key_id']
-      aws_secret_key = config['aws_secret_key']
-      aws_region = config['aws_region']
-
-      self.s3_client = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_key, region_name=aws_region)
+      # Load todos
+      self.load_tasks_from_s3
 
    def __init__(self, **kwargs):
        super(ToDoScreen, self).__init__(**kwargs)
@@ -81,12 +77,20 @@ class ToDoScreen(Screen):
        self.task_container.remove_widget(task_layout)
        self.task_container.height -= task_layout.height
        self.save_tasks_to_s3()
+    
+   def initialize_s3_client(self, aws_access_key_id, aws_secret_key, aws_region):
+        self.s3_client = boto3.client(
+            's3',
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_key,
+            region_name=aws_region
+    )
 
    def load_tasks_from_s3(self):
        print("current user load: " + current_user)
        try:
 
-           response = s3_client.get_object(Bucket='gestaltfilestorage', Key=f'{current_user}ToDoList.txt')
+           response = self.s3_client.get_object(Bucket='gestaltfilestorage', Key=f'{current_user}ToDoList.txt')
            tasks = response['Body'].read().decode('utf-8').splitlines()
            for task in tasks:
                if task:
@@ -100,10 +104,10 @@ class ToDoScreen(Screen):
            current_tasks = '\n'.join(self.todo_list)
            print("current user save: " + current_user)
            # Delete the existing ToDoList.txt file in S3
-           s3_client.delete_object(Bucket='gestaltfilestorage', Key=f'{current_user}ToDoList.txt')
+           self.s3_client.delete_object(Bucket='gestaltfilestorage', Key=f'{current_user}ToDoList.txt')
 
            # Upload the updated tasks to S3
-           s3_client.put_object(Bucket='gestaltfilestorage', Key=f'{current_user}ToDoList.txt',
+           self.s3_client.put_object(Bucket='gestaltfilestorage', Key=f'{current_user}ToDoList.txt',
                                 Body=current_tasks)
        except ClientError as e:
            print(f"Error saving tasks to S3: {e}")

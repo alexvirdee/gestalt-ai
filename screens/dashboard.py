@@ -28,7 +28,7 @@ class DashboardScreen(Screen):
             size_hint=(1, 0.5),
             size=(200, 50),
             font_size=20,
-            on_release=lambda x: self.load_and_switch_to_chat()
+            on_release=lambda x: self.load_and_switch_to_screen('chat', 'load_chat_history')
         )
         layout.add_widget(chat_button)
 
@@ -38,7 +38,7 @@ class DashboardScreen(Screen):
             size_hint=(1, 0.5),
             size=(200, 50),
             font_size=20,
-            on_release=lambda x: self.load_and_switch_to_todo_list()
+            on_release=lambda x: self.load_and_switch_to_screen('todo', 'load_tasks_from_s3')
         )
         layout.add_widget(todo_list_button)
 
@@ -49,30 +49,28 @@ class DashboardScreen(Screen):
 
         self.add_widget(layout)
 
-
-    def load_and_switch_to_todo_list(self):
-        todo_screen = self.manager.get_screen('todo')
-
-        todo_screen.load_tasks_from_s3()
-        self.switch_screen('todo')
-
-    def load_and_switch_to_chat(self):
-        chat_screen = self.manager.get_screen('chat')
-
-        # Initialize S3 client before switching
+    def initialize_s3_client(self, screen):
         config = self.manager.config
         aws_access_key_id = config['aws_access_key_id']
         aws_secret_key = config['aws_secret_key']
         aws_region = config['aws_region']
 
-        chat_screen.initialize_s3_client(aws_access_key_id, aws_secret_key, aws_region)
+        screen.initialize_s3_client(aws_access_key_id, aws_secret_key, aws_region)
 
-        popup = Popup(title='Dislaimer', content=Label(text='This app is not meant to \nsubstitute medical advice.'),
+    def load_and_switch_to_screen(self, screen_name, load_method_name):
+        screen = self.manager.get_screen(screen_name)
+        self.initialize_s3_client(screen)
+
+        # Call specified load method on the screen
+        load_method = getattr(screen, load_method_name)
+        load_method()
+
+        if screen_name == 'chat':
+            popup = Popup(title='Dislaimer', content=Label(text='This app is not meant to \nsubstitute medical advice.'),
                       size_hint=(None, None), size=(200, 200))
-        popup.open()
-
-        chat_screen.load_chat_history()
-        self.switch_screen('chat')
+            popup.open()
+        
+        self.switch_screen(screen_name)
 
     def switch_screen(self, screen_name):
         self.manager.current = screen_name
