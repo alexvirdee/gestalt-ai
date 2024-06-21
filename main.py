@@ -1,32 +1,16 @@
 import os
 from dotenv import load_dotenv
-# from kivy.uix.boxlayout import BoxLayout
-# from kivy.uix.scrollview import ScrollView
-# from kivy.uix.textinput import TextInput
-# from kivy.uix.button import Button
-# from kivy.uix.label import Label
+
 from kivy.uix.screenmanager import ScreenManager
 from kivy.app import App
-
-# import openai
-# from kivy.lang import Builder
-# import boto3
-# from botocore.exceptions import ClientError
-# from kivy.uix.popup import Popup
 
 from screens.login import LoginScreen
 from screens.dashboard import DashboardScreen
 from screens.chat import ChatScreen
 from screens.todo import ToDoScreen
 
-
-# cognito_client = boto3.client('cognito-idp', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=aws_region)
-# s3_client = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=aws_region)
-
-# openai.api_key = ""
-# modelT = 'gpt-3.5-turbo'
+# TODO - check if chat_history array is needed in main file
 chat_history = []
-# current_user = ''
 
 # Load environment variables from .env file
 load_dotenv()
