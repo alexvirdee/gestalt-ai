@@ -9,7 +9,7 @@ from screens.dashboard import DashboardScreen
 from screens.chat import ChatScreen
 from screens.todo import ToDoScreen
 
-# TODO - check if chat_history array is needed in main file
+
 chat_history = []
 
 # Load environment variables from .env file
