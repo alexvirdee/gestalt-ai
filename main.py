@@ -30,6 +30,8 @@ class GestaltScreenManager(ScreenManager):
 
 class Gestalt(App):
     def build(self):
+        current_user = None
+
         # Create the ScreenManager
         sm = GestaltScreenManager(config)
 

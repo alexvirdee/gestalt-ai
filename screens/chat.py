@@ -1,3 +1,4 @@
+from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.scrollview import ScrollView
@@ -12,13 +13,14 @@ import boto3
 import openai
 
 chat_history = []
-current_user = ''
+# current_user = ''
 
 class ChatScreen(Screen):
     
     def on_enter(self):
       # Load chat history when the screen is entered
       self.load_chat_history()
+    #   print("currentUser =", current_user)
 
     def __init__(self, **kwargs):
      super().__init__(**kwargs)
@@ -68,6 +70,8 @@ class ChatScreen(Screen):
     )
 
     def load_chat_history(self):
+     app = App.get_running_app()
+     current_user = app.current_user
      if self.s3_client is None:
         raise AttributeError("S3 client is not initialized.")
 

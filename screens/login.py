@@ -1,3 +1,4 @@
+from kivy.app import App
 import os
 
 from kivy.uix.screenmanager import Screen
@@ -58,8 +59,9 @@ class LoginScreen(Screen):
       global current_user
       username = self.username_input.text.strip() # Trim whitespace
       password = self.password_input.text.strip() # Trim whitespace
-      current_user = username
-      print("current user: " + current_user)
+      app = App.get_running_app()
+      app.current_user = username
+      print("current user: " + app.current_user)
       if self.cognito_login(username, password):
           # Navigate to the dashboard on successful login
           self.manager.current = 'dashboard'
