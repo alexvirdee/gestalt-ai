@@ -24,9 +24,9 @@ class LoginScreen(Screen):
       aws_secret_key = config['aws_secret_key']
       aws_region = config['aws_region']
 
-      self.cognito_client = boto3.client('cognito-idp', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_key, region_name=aws_region)
+      self.cognito_client = boto3.client('cognito-idp', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_key, region_name="us-east-1")
 
-      self.s3_client = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_key, region_name=aws_region)
+      self.s3_client = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_key, region_name="us-east-1")
 
   def __init__(self, **kwargs):
       super().__init__(**kwargs)

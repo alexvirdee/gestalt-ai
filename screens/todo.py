@@ -83,7 +83,7 @@ class ToDoScreen(Screen):
             's3',
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_key,
-            region_name=aws_region
+            region_name="us-east-1"
     )
 
    def load_tasks_from_s3(self):
