@@ -4,7 +4,7 @@ from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
-
+from kivy.app import App
 from botocore.exceptions import ClientError
 
 import boto3
@@ -87,10 +87,12 @@ class ToDoScreen(Screen):
     )
 
    def load_tasks_from_s3(self):
+       app = App.get_running_app()
+       current_user = app.current_user
        print("current user load: " + current_user)
        try:
 
-           response = self.s3_client.get_object(Bucket='gestaltfilestorage', Key=f'{current_user}ToDoList.txt')
+           response = self.s3_client.get_object(Bucket='gestaltfilestorage', Key=f'{app.current_user}ToDoList.txt')
            tasks = response['Body'].read().decode('utf-8').splitlines()
            for task in tasks:
                if task:
@@ -99,15 +101,17 @@ class ToDoScreen(Screen):
            print(f"Error loading tasks from S3: {e}")
 
    def save_tasks_to_s3(self):
+       app = App.get_running_app()
+       current_user = app.current_user
        try:
            # Save current tasks to a data structure
            current_tasks = '\n'.join(self.todo_list)
            print("current user save: " + current_user)
            # Delete the existing ToDoList.txt file in S3
-           self.s3_client.delete_object(Bucket='gestaltfilestorage', Key=f'{current_user}ToDoList.txt')
+           self.s3_client.delete_object(Bucket='gestaltfilestorage', Key=f'{app.current_user}ToDoList.txt')
 
            # Upload the updated tasks to S3
-           self.s3_client.put_object(Bucket='gestaltfilestorage', Key=f'{current_user}ToDoList.txt',
+           self.s3_client.put_object(Bucket='gestaltfilestorage', Key=f'{app.current_user}ToDoList.txt',
                                 Body=current_tasks)
        except ClientError as e:
            print(f"Error saving tasks to S3: {e}")

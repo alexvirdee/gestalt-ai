@@ -15,11 +15,15 @@ import openai
 chat_history = []
 # current_user = ''
 
+
 class ChatScreen(Screen):
     
     def on_enter(self):
       # Load chat history when the screen is entered
       self.load_chat_history()
+      config = self.manager.config
+      openai_key = config['open_ai_api_key']
+      openai.api_key = openai_key
     #   print("currentUser =", current_user)
 
     def __init__(self, **kwargs):
@@ -62,6 +66,7 @@ class ChatScreen(Screen):
      self.add_widget(layout)
 
     def initialize_s3_client(self, aws_access_key_id, aws_secret_key, aws_region):
+        print("s3 initialized")
         self.s3_client = boto3.client(
             's3',
             aws_access_key_id=aws_access_key_id,
@@ -76,7 +81,7 @@ class ChatScreen(Screen):
         raise AttributeError("S3 client is not initialized.")
 
      try:
-         response = self.s3_client.get_object(Bucket='gestaltfilestorage', Key=f'{current_user}ChatHistory.txt')
+         response = self.s3_client.get_object(Bucket='gestaltfilestorage', Key=f'{app.current_user}ChatHistory.txt')
          lines = response['Body'].read().decode('utf-8').splitlines()
          for line in lines:
              if line.startswith('You: '):
@@ -137,6 +142,8 @@ class ChatScreen(Screen):
         raise AttributeError("S3 client is not initialized.")
      
      try:
+         app = App.get_running_app()
+         current_user = app.current_user
          # Save the entire chat history to a string
 
          chat_history_str = ''
@@ -147,10 +154,10 @@ class ChatScreen(Screen):
                  chat_history_str += f'Bot: {message["content"]}\n'
 
          # Delete the existing ChatHistory.txt file in S3
-         self.s3_client.delete_object(Bucket='gestaltfilestorage', Key=f'{current_user}ChatHistory.txt')
+         self.s3_client.delete_object(Bucket='gestaltfilestorage', Key=f'{app.current_user}ChatHistory.txt')
 
          # Upload the updated chat history to S3
-         self.s3_client.put_object(Bucket='gestaltfilestorage', Key=f'{current_user}ChatHistory.txt',
+         self.s3_client.put_object(Bucket='gestaltfilestorage', Key=f'{app.current_user}ChatHistory.txt',
                               Body=chat_history_str)
      except ClientError as e:
          print(f"Error saving chat history to S3: {e}")
